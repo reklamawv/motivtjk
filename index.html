@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мотивируйся! Приложение помощи в мотивации.</title>
+	  <style>
+     body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff;
+    font-family: "Times New Roman", Times, serif;
+}
+
+#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: filter 0.5s;
+}
+
+#quote {
+    position: absolute;
+    top: 20%;
+    z-index: 1;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 222, 222);
+    text-align: center;
+    width: 85%; /* Ширина по отношению к родительскому контейнеру */
+    margin: 0 auto;
+    font-size: 3vw; /* Относительный размер шрифта */
+    opacity: 1;
+    transition: opacity 0.5s;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 25px;
+    padding: 5%; /* Относительное значение для отступов */
+    font-weight: 600;
+    font-style: normal;
+    max-height: 55%; /* Максимальная высота по отношению к родителю */
+    box-sizing: border-box; /* Включает паддинг в общую ширину и высоту элемента */
+    
+}
+
+small {
+    font-size: 2vw; /* Относительный размер шрифта для элементов small */
+}
+
+button {
+    background-color: rgba(255, 182, 193, 0.8);
+    color: #4b0082;
+    border: none;
+    padding: 2% 4%; /* Относительные значения для отступов */
+    font-size: 3vw; /* Относительный размер шрифта для кнопок */
+    cursor: pointer;
+    border-radius: 15px;
+    margin: 2% 1%; /* Относительные значения для маргина */
+    transition: background-color 0.3s, transform 0.2s;
+    font-family: "Times New Roman", Times, serif;
+    font-weight: 600;
+    margin: 4%;
+}
+
+button:hover {
+    background-color: #ff69b4;
+    transform: scale(1.05);
+}
+
+a {
+    color: #fff;
+    font-family: "Times New Roman", Times, serif;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+#button-container {
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 2s ease; /* Время анимации и стиль эффектов */
+}
+
+/* Медиазапросы для улучшения адаптивности на меньших экранах */
+@media (max-width: 768px) {
+    #quote {
+        font-size: 5vw; /* Увеличить размер шрифта на меньших экранах */
+    }
+    button {
+        font-size: 4vw; /* Увеличить размер шрифта для кнопок */
+    }
+}
+
+@media (max-width: 480px) {
+    #quote {
+        font-size: 6vw; /* Еще больше увеличить размер шрифта на мобильных устройствах */
+    }
+    button {
+        font-size: 5vw; /* Соответствующие изменения для кнопок */
+    }
+}
+
+</style>
+    <script type="text/javascript">
+        // Инициализация VK Mini Apps
+        VK.init({
+            apiId: 52850836 // Замените на ваш ID приложения
+        });
+    </script>
+    <script src="https://vk.com/js/api/mobile_sdk.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+    <script>
+        // Отправляет событие инициализации нативному клиенту
+        vkBridge.send('VKWebAppInit');
+        // Вызываем баннерную рекламу
+        vkBridge.send('VKWebAppShowBannerAd', { 'banner_location': 'bottom' });
+    </script>
+</head>
+<body>
+    <div id="background"></div>
+    <div id="quote">Привет, это приложение поможет Вам настроиться на нужный лад. Нажимайте кнопку "Мотивируй!", читайте, когда почувствуете, что уже мотивированы нажмите кнопку "Достаточно"</div>
+    <div id="button-container">
+        <button id="quoteButton">Мотивируй!</button>
+        <button id="stopButton" style="display: none;">Достаточно</button>
+    </div>
+
+    <script>
+        // Цитаты для мужчин и женщин
+        const maleQuotes = [
+            "Сила мужчины не в физической мощи, а в способности стоять на своих ногах.",
+            "Настоящий мужчина — это тот, кто умеет быть добрым.",
+            // Добавьте еще мужские цитаты
+        ];
+
+        const femaleQuotes = [
+            "Женская сила заключается в её способности любить и заботиться.",
+            "Настоящая красота женщины — это её внутренний свет.",
+            // Добавьте еще женские цитаты
+        ];
+
+        let quotes = []; // Этот массив будет содержать цитаты в зависимости от пола
+        let lastQuoteIndex = -1; // Индекс последней показанной цитаты
+        let lastPicIndex = -1; // Индекс последнего показанного изображения
+
+        // Получаем информацию о пользователе
+        vkBridge.send('VKWebAppGetUserInfo').then(data => {
+            const userGender = data.gender; // Получаем пол пользователя
+            const userName = data.first_name; // Получаем имя пользователя
+
+            // Обновляем приветствие с именем пользователя
+            const quoteElement = document.getElementById("quote");
+            quoteElement.innerText = `Привет, ${userName}! Это приложение поможет Вам настроиться на нужный лад. Нажимайте кнопку "Мотивируй!", читайте, когда почувствуете, что ужеmotivированы нажмите кнопку "Достаточно".`;
+
+            // В зависимости от пола выбираем соответствующий массив цитат
+            if (userGender === 2) { // 2 = female
+                quotes = femaleQuotes;
+            } else { // 1 = male; 0 = not specified
+                quotes = maleQuotes;
+            }
+        });
+
+        const totalPics = 16;
+
+        function randomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function setRandomBackground() {
+            let picIndex;
+            do {
+                picIndex = randomNumber(1, totalPics);
+            } while (picIndex === lastPicIndex); // Проверка, чтобы не выбрать то же изображение
+            lastPicIndex = picIndex; // Сохраняем индекс изображения
+            const background = document.getElementById("background");
+            background.style.backgroundImage = `url('pic (${picIndex}).jpeg')`;
+            background.style.filter = "blur(8px) brightness(0.5)";
+        }
+
+        function showQuote() {
+            let currentQuoteIndex;
+            do {
+                currentQuoteIndex = randomNumber(0, quotes.length - 1);
+            } while (currentQuoteIndex === lastQuoteIndex); // Проверка, чтобы не выбрать ту же цитату
+            lastQuoteIndex = currentQuoteIndex; // Сохраняем индекс цитаты
+            const quoteElement = document.getElementById("quote");
+            quoteElement.innerText = quotes[currentQuoteIndex];
+
+            adjustQuotePosition(); // Проверяем позицию после смены цитаты
+
+            function adjustQuotePosition() {
+                const quoteLength = quoteElement.innerText.length; // Длина текста
+                const maxLengthForDefaultPosition = 100; // Определяем максимально допустимую длину текста для статуса "30%"
+                // Вычисляем новое положение в зависимости от длины текста
+                if (quoteLength > maxLengthForDefaultPosition) {
+                    quoteElement.style.top = `10%`;
+                } else {
+                    quoteElement.style.top = `30%`;
+                }
+            }
+
+            quoteElement.classList.remove('fade-in'); // Удаляем класс, чтобы анимация сработала заново
+            void quoteElement.offsetWidth; // Переключение для перезапуска анимации
+            quoteElement.classList.add('fade-in'); // Добавляем класс для анимации
+            quoteElement.style.opacity = 1; 
+        }
+
+        document.getElementById("quoteButton").onclick = function() {
+            setRandomBackground();
+            document.getElementById("background").style.filter = "blur(0) brightness(0.7)";
+            document.getElementById("stopButton").style.display = "block"; 
+            showQuote(); 
+        };
+
+        document.getElementById("stopButton").onclick = function() {
+            document.getElementById("quote").innerHTML = "Спасибо за внимание! Если Вам снова потребуется мотивация - возвращайтесь. Чтобы повысить настроение, посмотрите <a href='https://vk.com/clips/wemom' target='_blank'>наши клипы</a> или почитайте <a href='https://vk.com/wemom' target='_blank'>новости в группе</a>"; 
+            document.getElementById("quote").style.opacity = 1; // Показать прощальное сообщение
+            document.getElementById("background").style.filter = "blur(8px) brightness(0.4)"; 
+            document.getElementById("stopButton").style.display = "none"; 
+        };
+
+        setRandomBackground(); // Устанавливаем фон
+    </script>
+</body>
+</html>
